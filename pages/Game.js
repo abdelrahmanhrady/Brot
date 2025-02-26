@@ -1,8 +1,7 @@
-import Hero from "@/components/LandingPage/Hero";
+import HeroG from "@/components/GamingPage/Hero";
 import { styled } from "styled-components";
 // import Navbar from "@/components/Dashboard/NavbarTest";
-import Footer from "@/components/LandingPage/Footer";
-import Navbar from "@/components/LandingPage/Navbar";
+import NavbarG from "@/components/GamingPage/Navbar";
 import Head from 'next/head'
 
 export default function Home() {
@@ -13,9 +12,8 @@ export default function Home() {
             rel="stylesheet"
           />
 
-      <Navbar />
-      <Hero />
-      <Footer />
+      <NavbarG />
+      <HeroG />
     </>
   );
 }

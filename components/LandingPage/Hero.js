@@ -7,17 +7,20 @@ import Link from "next/link";
 const Hero = () => {
   return (
     <>
+      <ImageWrapperBlr>
+        <Image src="/background.jpg" width={1536} height={515} />
+      </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/storageimg.jpg" width={1536} height={515} />
+        <Image src="/background.jpg" width={1536} height={515} />
       </ImageWrapper>
 
       <HeadText>
-        Manage and Improve your <br></br>   Educational Experience
+      Guarantee your path to <br></br>     Successful Failure
         
       </HeadText>
       <Link target="_blank" href="/SignUp">
         <BoxStart>
-              Start Now
+              Play Now
         </BoxStart>
       </Link>
     </>
@@ -29,14 +32,22 @@ const Hero = () => {
 
 
 
-
-
-
 const ImageWrapper = styled.div`
+
+position: absolute;
+left: 0%;
+top: 97px;
+border-radius: 0px;
+filter: blur(5px);
+
+`;
+
+const ImageWrapperBlr = styled.div`
   position: absolute;
   left: 0%;
   top: 97px;
   border-radius: 0px;
+
 `;
 const BoxStart = styled.div`
     font-family: 'Noto Sans Georgian', sans-serif;    display: inline-block;
@@ -44,20 +55,20 @@ const BoxStart = styled.div`
     color: black;
     padding: 7px 32px;
     font-size: 32px;
-    background: #c9ebff;
+    background: rgb(255, 215, 0);
     position: absolute; 
     cursor: pointer;
-    left: 45%;
+    left: 42%;
     top: 330px;
     font-weight: bold;
 
-    border: 4px solid #0B669D;
+    border: 4px solid rgb(51, 0, 0);;
     border-radius: 15px;
 
     &:hover{
     
-    border:4px solid #0B669D;
-    background: #0B669D;
+    border:4px solid rgb(51, 0, 0);;
+    background: rgb(208, 177, 0);
     transition: .5s;
     }
 `;
@@ -65,26 +76,26 @@ const BoxStart = styled.div`
 
 const HeadText = styled.h1`
   text-shadow: 
-    1px 1px 0px #0B669D, 
-    -1px -1px 0px #0B669D,
-    1px -1px 0px #0B669D,
-    -1px 1px 0px #0B669D;
+    1px 1px 0px black;, 
+    -1px -1px 0px black;,
+    1px -1px 0px black;,
+    -1px 1px 0px black;
 
 
   position: absolute;
 
-  left: 28%;
+  left: 30%;
   top: 150px;
   width: 475px;
   height: 87px;
 
-  color: rgba(201, 235, 255, 1);  
+  color: rgb(255, 235, 120);  
   line-break: auto;
   overflow-wrap: initial;
   white-space: pre;
   font-size: 56px;
   text-rendering: geometricPrecision;
-  caret-color: rgba(201, 235, 255, 1);
+  caret-color: rgb(255, 235, 120);
   text-decoration: none;
   letter-spacing: 0px;
   font-family: "Noto Sans Georgian";

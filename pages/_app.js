@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'//use instead of <img>
 import { StateContext } from "@/context/StateContext"
-import { createGlobalStyle, Body, HeadBox } from 'styled-components'
+import { createGlobalStyle} from 'styled-components'
 
 
 
@@ -18,8 +18,8 @@ export default function App({ Component, pageProps }) {
   return (
     <>
         <Head>
-          <title>EdEx - Home</title>
-          <link rel="icon" type="image/x-icon" href="./public/favicon.ico" />
+          <title>♦ Brot ♦</title>
+          <link rel="icon" type="image/x-icon" href="/favi.ico" />
           <meta name='description' content='Put a description here about your app'/>
           <meta name='robots' content='index, follow'/>
           <link rel="apple-touch-icon" sizes="180x180" href="/favicon_package/apple-touch-icon.png"/>

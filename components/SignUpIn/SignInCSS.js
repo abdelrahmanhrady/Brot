@@ -3,17 +3,25 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
+import { signUp } from "@/backend/Auth";
+import { useRouter } from "next/router";
+
 
 // SignIn Component
 const SignIn = ({ onSubmit }) => {
+  const router = useRouter();
+  
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
+    errorMessage: "Error"
   });
 
+
+  //Handling Inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserData({
@@ -22,9 +30,31 @@ const SignIn = ({ onSubmit }) => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); 
-    onSubmit(userData); 
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (userData.password !== userData.confirmPassword) {
+    
+      setUserData({ ...userData, errorMessage: "Passwords do not match." });
+      return;
+    }
+
+    try {
+      const user = await signUp(userData.email, userData.password, userData.username);
+      router.push("/Game");
+
+      console.log("User registered:", user);
+      
+
+
+      onSubmit(userData);
+    } catch (error) {
+      console.error("Error during sign-up:", error);
+  console.log("Error code:", error.code);   // Log the Firebase error code
+  console.log("Error message:", error.message); // Log the Firebase error message
+  setUserData({ ...userData, errorMessage: error.message || "Error during sign-up. Please try again." });
+}
   };
 
   return (
@@ -95,15 +125,30 @@ const SignIn = ({ onSubmit }) => {
           </form>
         </FormContainer>
       </Container>
+
+      <ImageWrapperBlr>
+          <Image src="/background.jpg" width={1576} height={772} />
+      </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/storageimg.jpg" width={1555} height={770} />
+        <Image src="/background.jpg" width={1576} height={772} />
       </ImageWrapper>
     </>
   );
 };
 
+const ImageWrapperBlr = styled.div`
+ 
+  z-index: -1;
+  position: absolute;
+  left: -40px;
+  top: 0px;
+  border-radius: 0px;
+  background-size: cover;
+  background-position: center;
+`;
+
 const ImageWrapper = styled.div`
-  filter: blur(40px);
+  filter: blur(10px);
   z-index: -1;
   position: absolute;
   left: -40px;
@@ -153,15 +198,17 @@ const Input = styled.input`
   border-radius: 4px;
   font-size: 16px;
   &:focus {
-    border-color: #3498db;
+    border-color: rgb(255, 215, 0);
     outline: none;
   }
+  
+ 
 `;
 
 const Button = styled.button`
   width: 100%;
   padding: 10px;
-  background-color: #3498db;
+  background-color: rgb(255, 215, 0);
   color: white;
   border: none;
   border-radius: 4px;
@@ -169,14 +216,13 @@ const Button = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: #2980b9;
+    background-color: rgb(208, 177, 0);
   }
 `;
 const TermsLabel = styled.label`
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: #555;
 
   a {
     color: #3498db;

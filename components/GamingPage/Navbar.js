@@ -1,10 +1,10 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 
 
-const Navbar = () => {
+const NavbarG = () => {
   return (
     
     <>
@@ -15,21 +15,19 @@ const Navbar = () => {
         </ImageWrapper>
         <Link target="_blank" href="/SignUp">
             <BoxSignUp>
-            Sign Up
-            </BoxSignUp>
-        
+            Sign Out
+            </BoxSignUp>   
         </Link>
 
-        <Link target="_blank" href="/LogIn">
-          <BoxLogIn>
-             Log In
-         </BoxLogIn>
-        </Link>
+      
+  
+
         
       </Box>
     </>
   );
 };
+
 
 
 
@@ -78,33 +76,7 @@ font-family: 'Noto Sans Georgian', sans-serif;    display: inline-block;
     }
 `;
 
-const BoxLogIn = styled.div`
-font-family: 'Noto Sans Georgian', sans-serif;
-    
-
-    display: inline-block;
-    text-decoration: none;
-    color: black;
-    padding: 7px 30px;
-    font-size: 18px;
-    background: rgb(255, 215, 0 );
-    position: absolute; 
-    cursor: pointer;
-    left: 80%;
-    top: 24px;
-    font-weight: bold;
-
-    border: 2px solid rgb(0, 0, 0);
-    border-radius: 15px;
-
-    &:hover{
-    
-    border:2px solid rgb(0, 0, 0);
-    background: rgb(208, 177, 0);
-    transition: .5s;
-    }
-`;
 
 
 
-export default Navbar;
+export default NavbarG;
