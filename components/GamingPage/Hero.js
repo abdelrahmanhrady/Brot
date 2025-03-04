@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 import { Chart } from "react-google-charts";
-import { useUser } from "@/pages/StateContext/UserContext";
+import { useUser } from "@/components/StateContext/UserContext";
 import { useUploadUserData } from "@/backend/Save";
 import { useRouter } from "next/router";
 import axios from "axios";

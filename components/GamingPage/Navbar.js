@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
-import { useUser } from "@/pages/StateContext/UserContext";
+import { useUser } from "@/components/StateContext/UserContext";
 import { useUploadUserData } from "@/backend/Save";
 import { signOut } from "@/backend/Auth";
 import { useRouter } from "next/router";

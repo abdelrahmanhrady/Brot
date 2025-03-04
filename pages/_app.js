@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'//use instead of <img>
 import { createGlobalStyle} from 'styled-components'
-import { UserProvider } from "@/pages/StateContext/UserContext"; // adjust path as needed
+import { UserProvider } from "@/components/StateContext/UserContext";
 
 
 

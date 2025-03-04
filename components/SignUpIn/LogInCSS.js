@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { logIn } from "@/backend/Auth";
 import { useRouter } from "next/router";
-import { useUser } from "@/pages/StateContext/UserContext";
+import { useUser } from "@/components/StateContext/UserContext";
 
 
 const LogIn = () => {
