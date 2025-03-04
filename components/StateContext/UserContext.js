@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { auth, db } from "@/backend/Firebase";
+import { auth, db } from "../../backend/Firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
