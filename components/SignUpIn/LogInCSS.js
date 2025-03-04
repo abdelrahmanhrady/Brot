@@ -11,7 +11,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 
 const LogIn = () => {
-  const { setUserData } = useUser(); 
+  const { userData: contextUserData, setUserData } = useUser(); 
 
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState("");
@@ -22,7 +22,11 @@ const LogIn = () => {
     password: "",
   });
 
-  
+   useEffect(() => {
+     if (contextUserData) {
+       router.push("/Game");
+     }
+   }, [contextUserData, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +58,6 @@ const LogIn = () => {
       router.push("/Game");
     } catch (err) {
       setError("Error logging in: " + err.message);
-      alert("Error logging in: " + err.message)
       
     } finally {
       setLoading(false);
