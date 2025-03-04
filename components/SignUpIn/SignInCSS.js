@@ -15,6 +15,7 @@ import { db } from "@/backend/Firebase";
 const SignIn = ({ onSubmit }) => {
   const router = useRouter();
   const { setUserData } = useUser(); 
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   
   const [userData, setUserDataState] = useState({
@@ -38,11 +39,21 @@ const SignIn = ({ onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    if (isSubmitting) return; 
+    // Prevent multiple submissions
+    if (userData.password.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    setIsSubmitting(true); 
     if (userData.password !== userData.confirmPassword) {
     
       setUserDataState({ ...userData, errorMessage: "Passwords do not match." });
       alert(userData.errorMessage)
+      setIsSubmitting(false);
+
       return;
     }
     if (!userData.agreeToTerms) {
@@ -68,6 +79,10 @@ const SignIn = ({ onSubmit }) => {
       console.log("Error code:", error.code); 
       console.log("Error message:", error.message); 
       setUserDataState({ ...userData, errorMessage: error.message || "Error during sign-up. Please try again." });
+      
+}finally{
+  setIsSubmitting(false); // Re-enable the button
+
 }
   };
 
