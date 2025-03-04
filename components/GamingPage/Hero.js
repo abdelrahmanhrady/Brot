@@ -237,26 +237,12 @@ const HeroG = () => {
     );
   }
 
-  //function for turning big numbers into smaller numbers with letter on the end
+  //Used a little chatgpt logic on this one, but 80% of this function is me. Only the treatment of negative numbers are dealt by gpt
   function stringNumConversion(num) {
+    let isNegative = num < 0;
+    num = Math.abs(num);
+  
     let result;
-    if(num<0){
-      num*=-1;
-      if (num >= 1_000_000_000_000) {
-        result = (num / 1_000_000_000_000).toFixed(2) + "t";
-      } else if (num >= 1_000_000_000) {
-        result = (num / 1_000_000_000).toFixed(2) + "b";
-      } else if (num >= 1_000_000) {
-        result = (num / 1_000_000).toFixed(2) + "m";
-      } else if (num >= 1_000) {
-        result = (num / 1_000).toFixed(2) + "k";
-      } else {
-        result = num.toString();
-      }
-      result = "-"+result;
-
-    }
-
     if (num >= 1_000_000_000_000) {
       result = (num / 1_000_000_000_000).toFixed(2) + "t";
     } else if (num >= 1_000_000_000) {
@@ -268,8 +254,8 @@ const HeroG = () => {
     } else {
       result = num.toString();
     }
-
-    return result;
+  
+    return isNegative ? "-" + result : result;
   }
 
   //Reset cards after game
