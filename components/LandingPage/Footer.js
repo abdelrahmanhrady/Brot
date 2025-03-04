@@ -22,7 +22,6 @@ const Footer = () => {
     switch(randomInt){
       case 1:
         setSent('99% of gamblers give up before hitting it big!')
-        router.push("/SignUp");
 
       break;
 
