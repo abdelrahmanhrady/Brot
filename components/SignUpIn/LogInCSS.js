@@ -1,32 +1,56 @@
-// SignInCSS.js
-import React, { useState } from "react";
+
+import React, { useState,useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
+import { logIn } from "@/backend/Auth";
+import { useRouter } from "next/router";
+import { useUser } from "@/pages/StateContext/UserContext";
 
-// SignIn Component
-const LogIn = ({ onSubmit }) => {
-  const [userData, setUserData] = useState({
-    username: "",
-    email: "",
+
+const LogIn = () => {
+  const { setUserData } = useUser(); 
+
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const [userData, setUserDataState] = useState({
+    usernameOrEmail: "",
     password: "",
-    errorMessage: "Error"
   });
 
+  
 
-  //Handling Inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData({
+    setUserDataState({
       ...userData,
       [name]: value,
     });
+   
   };
 
 
-  const handleSubmit = () => {
 
-   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const usernameOrEmail = userData.usernameOrEmail;
+    try {
+
+      await logIn(userData.usernameOrEmail, userData.password, setUserData);
+      router.push("/Game");
+    } catch (err) {
+      setError("Error logging in: " + err.message);
+      
+      
+    } finally {
+      setLoading(false);
+      console.log("Email after login attempt: ", userData.usernameOrEmail);
+    }
+  };
 
   return (
     <>
@@ -35,17 +59,18 @@ const LogIn = ({ onSubmit }) => {
           <Title>Log In</Title>
           <form onSubmit={handleSubmit}>
             <FormGroup>
-              <Label htmlFor="username">Username:</Label>
+              <Label htmlFor="usernameOrEmail">Username:</Label>
+
               <Input
                 type="text"
-                id="username"
-                name="username"
-                value={userData.username}
+                id="usernameOrEmail"
+                name="usernameOrEmail"
+                value={userData.usernameOrEmail}
                 onChange={handleChange}
                 required
               />
             </FormGroup>
- 
+
             <FormGroup>
               <Label htmlFor="password">Password:</Label>
               <Input
@@ -57,42 +82,45 @@ const LogIn = ({ onSubmit }) => {
                 required
               />
             </FormGroup>
-     
+
             <Button type="submit">Log In</Button>
           </form>
         </FormContainer>
       </Container>
 
       <ImageWrapperBlr>
-          <Image src="/background.jpg" width={1576} height={772} />
+        <Image src="/background.jpg" layout="fill" objectFit="cover"  />
       </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/background.jpg" width={1576} height={772} />
+        <Image src="/background.jpg" layout="fill" objectFit="cover"  />
       </ImageWrapper>
     </>
   );
 };
 
-const ImageWrapperBlr = styled.div`
- 
-  z-index: -1;
+const ImageWrapper = styled.div`
+
+z-index: -1;
+  width: 100%;
+  height: 100vh;
   position: absolute;
-  left: -40px;
+  left: 0%;
   top: 0px;
   border-radius: 0px;
-  background-size: cover;
-  background-position: center;
+  filter: blur(5px);
+
 `;
 
-const ImageWrapper = styled.div`
-  filter: blur(10px);
-  z-index: -1;
+const ImageWrapperBlr = styled.div`
+ z-index: -1;
+  width: 100%;
+  height: 100vh;
   position: absolute;
-  left: -40px;
+  left: 0%;
   top: 0px;
   border-radius: 0px;
-  background-size: cover;
-  background-position: center;
+  filter: blur(0px);
+
 `;
 
 const Container = styled.div`
@@ -134,12 +162,7 @@ const Input = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  &:focus {
-    border-color: rgb(255, 215, 0);
-    outline: none;
-  }
-  
- 
+
 `;
 
 const Button = styled.button`
@@ -156,15 +179,6 @@ const Button = styled.button`
     background-color: rgb(208, 177, 0);
   }
 `;
-const TermsLabel = styled.label`
-  display: flex;
-  align-items: center;
-  font-size: 14px;
 
-  a {
-    color: #3498db;
-    text-decoration: none;
-  }
-`;
 
 export default LogIn;

@@ -1,7 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'//use instead of <img>
-import { StateContext } from "@/context/StateContext"
 import { createGlobalStyle} from 'styled-components'
+import { UserProvider } from "@/pages/StateContext/UserContext"; // adjust path as needed
+
 
 
 
@@ -31,11 +32,9 @@ export default function App({ Component, pageProps }) {
         </Head>
 
         <GlobalStyle />
-        
-
-      <StateContext>
-        <Component {...pageProps} />
-      </StateContext>
+        <UserProvider>
+      <Component {...pageProps} />
+    </UserProvider>
     </>
   )
 }

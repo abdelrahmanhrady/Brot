@@ -8,17 +8,17 @@ const Hero = () => {
   return (
     <>
       <ImageWrapperBlr>
-        <Image src="/background.jpg" width={1536} height={515} />
+        <Image src="/background.jpg" layout="fill" objectFit="cover"  />
       </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/background.jpg" width={1536} height={515} />
+        <Image src="/background.jpg" layout="fill" objectFit="cover"  />
       </ImageWrapper>
 
       <HeadText>
       Guarantee your path to <br></br>     Successful Failure
         
       </HeadText>
-      <Link target="_blank" href="/SignUp">
+      <Link target="_blank" href="/Game">
         <BoxStart>
               Play Now
         </BoxStart>
@@ -34,19 +34,26 @@ const Hero = () => {
 
 const ImageWrapper = styled.div`
 
-position: absolute;
-left: 0%;
-top: 97px;
-border-radius: 0px;
-filter: blur(5px);
+z-index: -1;
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  left: 0%;
+  top: 0px;
+  border-radius: 0px;
+  filter: blur(5px);
 
 `;
 
 const ImageWrapperBlr = styled.div`
+ z-index: -1;
+  width: 100%;
+  height: 100vh;
   position: absolute;
   left: 0%;
-  top: 97px;
+  top: 0px;
   border-radius: 0px;
+  filter: blur(0px);
 
 `;
 const BoxStart = styled.div`

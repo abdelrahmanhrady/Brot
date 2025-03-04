@@ -2,10 +2,36 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
+import { Chart } from "react-google-charts";
+import { useUser } from "@/pages/StateContext/UserContext";
+import { useUploadUserData } from "@/backend/Save";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 const HeroG = () => {
+  //All relevent Firebase stored data
+  const { userData, setUserData } = useUser();
+  const [userId, setUserId] = useState(null);
+  const [winRate, setWinRate] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [moneyLost, setMoneyLost] = useState(null);
+  const [moneyWon, setMoneyWon] = useState(null);
+  const [moneyProfit, setMoneyProfit] = useState(null);
+  const [totalPassiveCollected, setTotalPassiveCollected] = useState(null);
+  //Save info
+  useUploadUserData(userId, userData);
+
+  console.log("userId:", userId);
+  console.log("userData:", userData);
+
+  const router = useRouter();
+  //Random Api
+  const [gifUrl, setGifUrl] = useState(null);
+  //Not an API key
+  const api = "HwKNZBNfseafAEYwNi496qLbCjDwYCZ6";
+
   //I love AI
-  const [cardImg, setCardImg] = useState([
+  const cardImg = [
     // Hearts
     "/HeartA.png",
     "/Heart2.png",
@@ -65,19 +91,38 @@ const HeroG = () => {
     "/DiamondJ.png",
     "/DiamondQ.png",
     "/DiamondK.png",
-  ]);
+  ];
 
-  const cardArray = useRef([
+  const cardArray = [
     11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, 2, 3, 4, 5, 6, 7, 8, 9, 10,
     10, 10, 10, 11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, 2, 3, 4, 5, 6,
     7, 8, 9, 10, 10, 10, 10,
-  ]);
-  const cardArrayTemp = useRef(cardArray);
-  const [rende,setRender]= useState(0)
-  function render(){
-    setRender(prevRender => prevRender + 1)
-  }
+  ];
 
+  const cardArrayTemp = useRef(cardArray);
+  const [rende, setRender] = useState(-99999999);
+  const [chartVersion, setChartVersion] = useState(0);
+
+  function render() {
+    setRender((prevRender) => prevRender + 1);
+  }
+  useEffect(() => {
+    const fetchGif = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.giphy.com/v1/gifs/random?api_key=${api}&tag=loading&rating=g`
+        );
+        const gif = response.data.data.images.original.url;
+        setGifUrl(gif);
+      } catch (error) {
+        console.error("Error fetching GIF from Giphy:", error);
+      }
+    };
+
+    fetchGif();
+  }, []);
+
+  //Game variables
   const [midMsg, setMidMsg] = useState("");
 
   const empty = "/EmptyCard.png";
@@ -116,6 +161,102 @@ const HeroG = () => {
   let CardSelector = 0;
 
   const [betAmount, setBetAmount] = useState("");
+  const fixedBet = useRef(0);
+
+  const stringNum = useRef("");
+
+  //Chart setup, Thanks to AI cause no way anyone writes code this way
+  const chartData = React.useMemo(() => {
+    const history = userData?.gameHistory || [];
+    return [
+      ["Games", "Money"],
+      ...(history.length === 0
+        ? [[0, userData?.money || 0]]
+        : history.map((money, index) => [index + 1, money])),
+    ];
+  }, [userData?.gameHistory, userData?.money]);
+  const options = React.useMemo(
+    () => ({
+      title: "Money Progression",
+      hAxis: {
+        title: "Games",
+        format: "#",
+        gridlines: { count: -1 },
+      },
+      vAxis: {
+        title: "Money",
+        format: "short",
+        viewWindow: {
+          min: 0,
+        },
+      },
+      legend: "none",
+      backgroundColor: "transparent",
+      colors: ["rgb(19, 0, 166)"],
+      chartArea: {
+        width: "85%",
+        height: "75%",
+        left: 60,
+        top: 40,
+        right: 20,
+        bottom: 60,
+      },
+    }),
+    []
+  );
+
+  //Firebase call data
+  useEffect(() => {
+    if (userData?.uid) {
+      setUserId(userData.uid);
+      setWinRate(
+        (
+          (100 * parseFloat(userData.Wins)) /
+          parseFloat(userData.Games)
+        ).toFixed(2)
+      );
+      setUsername(userData.username);
+      setMoneyLost(userData.MoneyLost);
+      setMoneyWon(userData.MoneyWon);
+      setMoneyProfit(userData.MoneyWon - userData.MoneyLost);
+      setTotalPassiveCollected(userData.TotalPassiveCollected);
+
+      console.log("Authenticated user ID:", userData.uid);
+    }
+  }, [userData]);
+
+  //Loading screen
+  if (!userData || (!userId && !gifUrl)) {
+    return (
+      <LoadingScreen>
+        Loading game data... (Check Wifi or Log In)
+        {gifUrl && (
+          <img src={gifUrl} alt="Loading GIF" width="200" height="200" />
+        )}
+      </LoadingScreen>
+    );
+  }
+
+  //function for turning big numbers into smaller numbers with letter on the end
+  function stringNumConversion(num) {
+    let result;
+
+    if (num >= 1_000_000_000_000) {
+      result = (num / 1_000_000_000_000).toFixed(2) + "t";
+    } else if (num >= 1_000_000_000) {
+      result = (num / 1_000_000_000).toFixed(2) + "b";
+    } else if (num >= 1_000_000) {
+      result = (num / 1_000_000).toFixed(2) + "m";
+    } else if (num >= 1_000) {
+      result = (num / 1_000).toFixed(2) + "k";
+    } else {
+      result = num.toString();
+    }
+
+    return result;
+  }
+
+  //Reset cards after game
 
   function ResetCards() {
     yourCard1.current = 0;
@@ -129,11 +270,12 @@ const HeroG = () => {
     dealerCard3.current = 0;
     dealerCard4.current = 0;
     dealerCard5.current = 0;
-
-    setMidMsg("")
+    cardArrayTemp.current = [...cardArray];
+    setMidMsg("");
   }
 
-  function CheckForAceYou(){
+  //Checks if you have an ace and reverts it to 1
+  function CheckForAceYou() {
     if (yourCard1.current === 11) {
       yourCard1.current = 1;
       return;
@@ -155,7 +297,7 @@ const HeroG = () => {
       return;
     }
   }
-
+  //checks dealers ace
   function CheckForAce() {
     if (dealerCard1.current === 11) {
       dealerCard1.current = 1;
@@ -178,36 +320,136 @@ const HeroG = () => {
       return;
     }
   }
-
+  //Smart way of making sure you aren't reselecting cards
   function SelectorCheck() {
     let CardSelectors = 0;
     CardSelectors = Math.floor(Math.random() * 52);
     while (cardArrayTemp.current[CardSelectors] === 0) {
+      console.log(CardSelector);
       CardSelectors = Math.floor(Math.random() * 52);
     }
     return CardSelectors;
   }
 
+  //function mostly used when user clicks "stand" to finalize game
   function CheckWinner() {
+    stringNum.current = stringNumConversion(fixedBet.current);
     if (yourSum.current > dealerSum.current) {
-      setMidMsg(`YOU WON: ${yourSum.current} to ${dealerSum.current}`);
+      setMidMsg(
+        `YOU WON ${stringNum.current}$ : ${yourSum.current} to ${dealerSum.current}`
+      );
+      setUserData((prevData) => {
+        const newMoney = prevData.money + parseInt(fixedBet.current);
+        const newMoneyWon = prevData.MoneyWon + parseInt(fixedBet.current);
+
+        return {
+          ...prevData,
+          money: newMoney,
+          Games: prevData.Games + 1,
+          gameHistory: [...prevData.gameHistory, newMoney],
+          MoneyWon: newMoneyWon,
+          Wins: prevData.Wins + 1,
+        };
+      });
     } else if (yourSum.current < dealerSum.current) {
-      setMidMsg(`YOU LOST: ${yourSum.current} to ${dealerSum.current} `);
+      setMidMsg(
+        `YOU LOST ${stringNum.current}$ : ${yourSum.current} to ${dealerSum.current} `
+      );
+      setUserData((prevData) => {
+        const newMoney = prevData.money - parseInt(fixedBet.current);
+        const newMoneyLost = prevData.MoneyLost + parseInt(fixedBet.current);
+
+        return {
+          ...prevData,
+          Games: prevData.Games + 1,
+          money: newMoney,
+          gameHistory: [...prevData.gameHistory, newMoney],
+          MoneyLost: newMoneyLost,
+        };
+      });
     } else {
       setMidMsg(`DRAW: ${yourSum.current} to ${dealerSum.current}`);
+      setUserData((prevData) => {
+        const newMoney = prevData.money;
+        return {
+          ...prevData,
+          Games: prevData.Games + 1,
+          money: newMoney,
+          gameHistory: [...prevData.gameHistory, newMoney],
+        };
+      });
     }
     setMidGame(false);
+    setBetAmount("");
+    fixedBet.current = 0;
+    setChartVersion((prev) => prev + 1);
   }
-
+  //When dealer has more than 21 and no aces
   function DealerOverflow() {
-    setMidMsg(`YOU WON: Dealer ${dealerSum.current}, over 21!`);
-    setMidGame(false);
-  }
-  function YouOverflow() {
-    setMidMsg(`YOU LOST: You ${yourSum.current}, over 21!`);
-    setMidGame(false);
-  }
+    stringNum.current = stringNumConversion(fixedBet.current);
 
+    setMidMsg(
+      `YOU WON ${stringNum.current}$ : Dealer ${dealerSum.current}, over 21!`
+    );
+    setUserData((prevData) => {
+      const newMoneyWon = prevData.MoneyWon + parseInt(fixedBet.current);
+      const newMoney = prevData.money + parseInt(fixedBet.current);
+      return {
+        ...prevData,
+        money: newMoney,
+        Games: prevData.Games + 1,
+        gameHistory: [...prevData.gameHistory, newMoney],
+        MoneyWon: newMoneyWon,
+        Wins: prevData.Wins + 1,
+      };
+    });
+
+    setMidGame(false);
+    setBetAmount("");
+    fixedBet.current = 0;
+    setChartVersion((prev) => prev + 1);
+  }
+  //when user has more than 21 and no aces
+  function YouOverflow() {
+    stringNum.current = stringNumConversion(fixedBet.current);
+
+    setMidMsg(
+      `YOU LOST ${stringNum.current}$ : You ${yourSum.current}, over 21!`
+    );
+    setUserData((prevData) => {
+      const newMoneyLost = prevData.MoneyLost + parseInt(fixedBet.current);
+      const newMoney = prevData.money - parseInt(fixedBet.current);
+      return {
+        ...prevData,
+        money: newMoney,
+        Games: prevData.Games + 1,
+        gameHistory: [...prevData.gameHistory, newMoney],
+        MoneyLost: newMoneyLost,
+      };
+    });
+    setMidGame(false);
+    setBetAmount("");
+    fixedBet.current = 0;
+    setChartVersion((prev) => prev + 1);
+  }
+  //loops ace check 5 times (specifically for 2 aces in the beginning), 5 times is not needed but whatever
+  function CheckForAceLoop() {
+    for (let x = 0; x < 3; x++) {
+      if (dealerSum.current > 21) {
+        CheckForAce();
+        findSums();
+      }
+    }
+  }
+  function CheckForAceLoopYou() {
+    for (let x = 0; x < 5; x++) {
+      if (yourSum.current > 21) {
+        CheckForAceYou();
+        findSums();
+      }
+    }
+  }
+  //finds the sum of cards
   function findSums() {
     yourSum.current =
       yourCard1.current +
@@ -224,13 +466,17 @@ const HeroG = () => {
       dealerCard5.current;
   }
 
-  //the ancient way of setting a function (???)
+  //the ancient way of setting a function (???), When user clicks "stand"
   const handleStandClick = () => {
     if (midGame === false) {
       alert("You must bet first");
       return;
     }
 
+    //to sum all this up, it checks if dealer is less than 16, and adds a card, then repeats process 3 times
+    findSums();
+    CheckForAceLoopYou();
+    CheckForAceLoop();
     findSums();
     dealerImg2.current = cardImg[flippedCard.current];
 
@@ -238,52 +484,44 @@ const HeroG = () => {
       CardSelector = SelectorCheck();
       dealerImg3.current = cardImg[CardSelector];
       cardArrayTemp.current[CardSelector] = 0;
-      dealerCard3.current = cardArray.current[CardSelector];
+      dealerCard3.current = cardArray[CardSelector];
 
       findSums();
 
+      CheckForAceLoop();
       if (dealerSum.current > 21) {
-        CheckForAce();
-        findSums();
-        if (dealerSum.current > 21) {
-          DealerOverflow();
-          return;
-        }
+        DealerOverflow();
+        return;
       }
 
       if (dealerSum.current <= 16) {
         CardSelector = SelectorCheck();
         dealerImg4.current = cardImg[CardSelector];
         cardArrayTemp.current[CardSelector] = 0;
-        dealerCard4.current = cardArray.current[CardSelector];
+        dealerCard4.current = cardArray[CardSelector];
 
         findSums();
 
+        CheckForAceLoop();
         if (dealerSum.current > 21) {
-          CheckForAce();
-          findSums();
-          if (dealerSum.current > 21) {
-            DealerOverflow();
-            return;
-          }
+          DealerOverflow();
+          return;
         }
 
         if (dealerSum.current <= 16) {
           CardSelector = SelectorCheck();
           dealerImg5.current = cardImg[CardSelector];
           cardArrayTemp.current[CardSelector] = 0;
-          dealerCard5.current = cardArray.current[CardSelector];
+          dealerCard5.current = cardArray[CardSelector];
 
           findSums();
 
+          CheckForAceLoop();
           if (dealerSum.current > 21) {
-            CheckForAce();
-            findSums();
-            if (dealerSum.current > 21) {
-              DealerOverflow();
-              return;
-            }
+            DealerOverflow();
+            return;
           }
+          CheckWinner();
         } else {
           CheckWinner();
         }
@@ -293,9 +531,8 @@ const HeroG = () => {
     } else {
       CheckWinner();
     }
-    CheckWinner();
   };
-
+  //For when user clicks "hit", adds card and checks if over 21
   const handleHitClick = () => {
     if (midGame === false) {
       alert("You must bet first");
@@ -310,16 +547,13 @@ const HeroG = () => {
       CardSelector = SelectorCheck();
       yourImg3.current = cardImg[CardSelector];
       cardArrayTemp.current[CardSelector] = 0;
-      yourCard3.current = cardArray.current[CardSelector];
+      yourCard3.current = cardArray[CardSelector];
       findSums();
 
+      CheckForAceLoopYou();
       if (yourSum.current > 21) {
-        CheckForAceYou();
-        findSums();
-        if (yourSum.current > 21) {
-          YouOverflow();
-          return;
-        }
+        YouOverflow();
+        return;
       }
       render();
       return;
@@ -328,17 +562,15 @@ const HeroG = () => {
       CardSelector = SelectorCheck();
       yourImg4.current = cardImg[CardSelector];
       cardArrayTemp.current[CardSelector] = 0;
-      yourCard4.current = cardArray.current[CardSelector];
+      yourCard4.current = cardArray[CardSelector];
       findSums();
 
+      CheckForAceLoopYou();
       if (yourSum.current > 21) {
-        CheckForAceYou();
-        findSums();
-        if (yourSum.current > 21) {
-          YouOverflow();
-          return;
-        }
+        YouOverflow();
+        return;
       }
+
       render();
       return;
     }
@@ -346,20 +578,18 @@ const HeroG = () => {
     CardSelector = SelectorCheck();
     yourImg5.current = cardImg[CardSelector];
     cardArrayTemp.current[CardSelector] = 0;
-    yourCard5.current = cardArray.current[CardSelector];
+    yourCard5.current = cardArray[CardSelector];
     findSums();
 
+    CheckForAceLoopYou();
     if (yourSum.current > 21) {
-      CheckForAceYou();
-      findSums();
-      if (yourSum.current > 21) {
-        YouOverflow();
-        return;
-      }
+      YouOverflow();
+      return;
     }
+    handleStandClick();
     render();
   };
-
+  //once user bets
   const handleBetClick = () => {
     if (midGame === true) {
       alert("You are in the middle of a game!");
@@ -370,35 +600,35 @@ const HeroG = () => {
       alert("You can't bet negatives");
       return;
     }
+    if (betAmount > userData.money) {
+      alert("You don't have enough money");
+      return;
+    }
 
     if (betAmount) {
+      fixedBet.current = betAmount;
       setMidGame(true);
-      alert(`You bet ${betAmount}!`);
       ResetCards();
-      //random number
       CardSelector = Math.floor(Math.random() * 52);
-      //set image
       dealerImg1.current = cardImg[CardSelector];
-      //remove from temp array
       cardArrayTemp.current[CardSelector] = 0;
-      //sets the value of first card
-      dealerCard1.current = cardArray.current[CardSelector];
+      dealerCard1.current = cardArray[CardSelector];
 
       CardSelector = SelectorCheck();
       dealerImg2.current = "/flippedCard.png";
       flippedCard.current = CardSelector;
       cardArrayTemp.current[CardSelector] = 0;
-      dealerCard2.current = cardArray.current[CardSelector];
+      dealerCard2.current = cardArray[CardSelector];
 
       CardSelector = SelectorCheck();
       yourImg1.current = cardImg[CardSelector];
       cardArrayTemp.current[CardSelector] = 0;
-      yourCard1.current = cardArray.current[CardSelector];
+      yourCard1.current = cardArray[CardSelector];
 
       CardSelector = SelectorCheck();
       yourImg2.current = cardImg[CardSelector];
       cardArrayTemp.current[CardSelector] = 0;
-      yourCard2.current = cardArray.current[CardSelector];
+      yourCard2.current = cardArray[CardSelector];
 
       dealerImg3.current = empty;
       dealerImg4.current = empty;
@@ -407,8 +637,6 @@ const HeroG = () => {
       yourImg3.current = empty;
       yourImg4.current = empty;
       yourImg5.current = empty;
-
-      setBetAmount("");
     } else {
       alert("Please enter a bet amount!");
     }
@@ -417,10 +645,10 @@ const HeroG = () => {
   return (
     <>
       <ImageWrapperBlr>
-        <Image src="/background.jpg" width={1536} height={515} />
+        <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
       </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/PokerBG.jpg" width={1536} height={675} />
+        <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
       </ImageWrapper>
 
       <HeadText>{midMsg}</HeadText>
@@ -429,7 +657,7 @@ const HeroG = () => {
         <BetInput
           type="number"
           value={betAmount}
-          onChange={(e) => setBetAmount(e.target.value)} // Update bet amount on change
+          onChange={(e) => setBetAmount(e.target.value)}
           placeholder="Enter Bet"
         />
         <BetButton onClick={handleBetClick}>Place Bet</BetButton>
@@ -475,16 +703,175 @@ const HeroG = () => {
 
       <HitStandContainer>
         <HitButton onClick={handleHitClick}>
-          ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ Hit ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎{" "}
+          ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ Hit ☝🏾‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎{" "}
         </HitButton>
         <StandButton onClick={handleStandClick}>
-          ‎ ‎ ‎ ‎ ‎ ‎ Stand ‎ ‎ ‎ ‎ ‎ ‎{" "}
+          ‎ ‎ ‎ ‎ ‎ ‎ Stand ✋🏾‎ ‎ ‎ ‎ ‎ ‎{" "}
         </StandButton>
       </HitStandContainer>
+      <VideoContainer>
+        <iframe
+          width="315"
+          height="190"
+          src="https://www.youtube.com/embed/UZfHXOJVAJo?autoplay=1&mute=1&loop=1&playlist=UZfHXOJVAJo"
+          title="YouTube video"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+      </VideoContainer>
+      <VideoContainer1>
+        <iframe
+          width="315"
+          height="190"
+          src="https://www.youtube.com/embed/UzUrnOiimuE?autoplay=1&mute=1&loop=1&playlist=UzUrnOiimuE"
+          title="YouTube video"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+      </VideoContainer1>
+      <VideoContainer2>
+        <iframe
+          width="315"
+          height="190"
+          src="https://www.youtube.com/embed/vnM6WJrWdkk?autoplay=1&mute=1&loop=1&playlist=vnM6WJrWdkk"
+          title="YouTube video"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+      </VideoContainer2>
+      <ChartPos>
+        <CoverBox>
+          <Chart
+            key={chartVersion}
+            chartType="LineChart"
+            data={chartData}
+            options={options}
+            width={"100%"}
+            height={"400px"}
+            loader={<div>Loading Chart...</div>}
+          />
+        </CoverBox>
+      </ChartPos>
+      <Username>Username: {username}</Username>
+
+      <WinRate>
+        Win Rate: {winRate}%<br></br>Total Passive Collected:{" "}
+        {stringNumConversion(totalPassiveCollected)}$<br></br>Gambling Net
+        Profit: {stringNumConversion(moneyProfit)}$<br></br>Gambling Money Won:{" "}
+        {stringNumConversion(moneyWon)}$<br></br>Gambling Money Lost:{" "}
+        {stringNumConversion(moneyLost)}$
+      </WinRate>
     </>
   );
 };
 
+//no comments needed for CSS
+const Username = styled.h1`
+  text-shadow: 
+    1px 1px 0px black;, 
+    -1px -1px 0px black;,
+    1px -1px 0px black;,
+    -1px 1px 0px black;
+
+
+  position: absolute;
+
+  left: 2%;
+  top: 14%;
+  width: 475px;
+  height: 87px;
+
+  color: rgb(255, 215, 0);  
+  line-break: auto;
+  overflow-wrap: initial;
+  white-space: pre;
+  text-rendering: geometricPrecision;
+  caret-color: rgb(255, 215, 0);
+  text-decoration: none;
+  letter-spacing: 0px;
+  font-family: "Noto Sans Georgian";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 30px;
+`;
+const WinRate = styled.h1`
+  text-shadow: 
+    1px 1px 0px black;, 
+    -1px -1px 0px black;,
+    1px -1px 0px black;,
+    -1px 1px 0px black;
+
+
+  position: absolute;
+
+  left: 2%;
+  bottom: 125px;
+  width: 475px;
+  height: 87px;
+
+  color: rgb(255, 215, 0);  
+  line-break: auto;
+  overflow-wrap: initial;
+  white-space: pre;
+  text-rendering: geometricPrecision;
+  caret-color: rgb(255, 215, 0);
+  text-decoration: none;
+  letter-spacing: 0px;
+  font-family: "Noto Sans Georgian";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+`;
+
+const LoadingScreen = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: gold;
+  font-size: 2rem;
+`;
+const CoverBox = styled.div`
+  position: relative;
+  width: 400px; // Fixed width
+  height: 400px; // Fixed height
+  background-color: rgb(255, 237, 133);
+  border-radius: 10px; /* Rounded corners */
+  z-index: 2; /* Ensure the box is above the chart */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+`;
+
+const ChartPos = styled.div`
+  position: absolute;
+  top: 21%;
+  left: 2%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const VideoContainer2 = styled.div`
+  position: absolute;
+  top: 65%;
+  left: 75%;
+  z-index: 1;
+`;
+const VideoContainer1 = styled.div`
+  position: absolute;
+  top: 40%;
+  left: 75%;
+  z-index: 1;
+`;
+
+const VideoContainer = styled.div`
+  position: absolute;
+  top: 17%;
+  left: 75%;
+  z-index: 1;
+`;
 const Dealer = styled.h1`
   text-shadow: 
     1px 1px 0px black;, 
@@ -571,19 +958,22 @@ const You = styled.h1`
 
 const ImageWrapper = styled.div`
   z-index: -1;
-
+  width: 100%;
+  height: 100vh;
   position: absolute;
   left: 0%;
-  top: 97px;
+  top: 0px;
   border-radius: 0px;
-  filter: blur(1px);
+  filter: blur(10px);
 `;
 
 const ImageWrapperBlr = styled.div`
   z-index: -2;
+  width: 100%;
+  height: 100vh;
   position: absolute;
   left: 0%;
-  top: 97px;
+  top: 0px;
   border-radius: 0px;
 `;
 
@@ -685,6 +1075,7 @@ font-weight:700;
   padding: 10px 20px;
   font-size: 18px;
   background-color: rgb(255, 215, 0);
+  
   color: black;
   border: 2px solid rgb(0, 0, 0);
   border-radius: 10px;

@@ -5,13 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { signUp } from "@/backend/Auth";
 import { useRouter } from "next/router";
+import { useUser } from "@/pages/StateContext/UserContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/backend/Firebase";
 
 
-// SignIn Component
+
+
 const SignIn = ({ onSubmit }) => {
   const router = useRouter();
+  const { setUserData } = useUser(); 
+
   
-  const [userData, setUserData] = useState({
+  const [userData, setUserDataState] = useState({
     username: "",
     email: "",
     password: "",
@@ -21,10 +27,9 @@ const SignIn = ({ onSubmit }) => {
   });
 
 
-  //Handling Inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserData({
+    setUserDataState({
       ...userData,
       [name]: value,
     });
@@ -36,12 +41,21 @@ const SignIn = ({ onSubmit }) => {
     
     if (userData.password !== userData.confirmPassword) {
     
-      setUserData({ ...userData, errorMessage: "Passwords do not match." });
+      setUserDataState({ ...userData, errorMessage: "Passwords do not match." });
+      alert(userData.errorMessage)
+      return;
+    }
+    if (!userData.agreeToTerms) {
+      setUserDataState({ ...userData, errorMessage: "You must agree to the Terms of Service." });
+      alert(userData.errorMessage)
       return;
     }
 
     try {
-      const user = await signUp(userData.email, userData.password, userData.username);
+      const userId = await signUp(userData.email, userData.password, userData.username, setUserData);
+      const userDoc = await getDoc(doc(db, "users", userId));
+      setUserData(userDoc.data());
+  
       router.push("/Game");
 
       console.log("User registered:", user);
@@ -51,9 +65,9 @@ const SignIn = ({ onSubmit }) => {
       onSubmit(userData);
     } catch (error) {
       console.error("Error during sign-up:", error);
-  console.log("Error code:", error.code);   // Log the Firebase error code
-  console.log("Error message:", error.message); // Log the Firebase error message
-  setUserData({ ...userData, errorMessage: error.message || "Error during sign-up. Please try again." });
+      console.log("Error code:", error.code); 
+      console.log("Error message:", error.message); 
+      setUserDataState({ ...userData, errorMessage: error.message || "Error during sign-up. Please try again." });
 }
   };
 
@@ -127,35 +141,38 @@ const SignIn = ({ onSubmit }) => {
       </Container>
 
       <ImageWrapperBlr>
-          <Image src="/background.jpg" width={1576} height={772} />
+          <Image src="/background.jpg"layout="fill" objectFit="cover"  />
       </ImageWrapperBlr>
       <ImageWrapper>
-        <Image src="/background.jpg" width={1576} height={772} />
+        <Image src="/background.jpg" layout="fill" objectFit="cover"  />
       </ImageWrapper>
     </>
   );
 };
 
-const ImageWrapperBlr = styled.div`
- 
-  z-index: -1;
+const ImageWrapper = styled.div`
+
+z-index: -1;
+  width: 100%;
+  height: 100vh;
   position: absolute;
-  left: -40px;
+  left: 0%;
   top: 0px;
   border-radius: 0px;
-  background-size: cover;
-  background-position: center;
+  filter: blur(5px);
+
 `;
 
-const ImageWrapper = styled.div`
-  filter: blur(10px);
-  z-index: -1;
+const ImageWrapperBlr = styled.div`
+ z-index: -1;
+  width: 100%;
+  height: 100vh;
   position: absolute;
-  left: -40px;
+  left: 0%;
   top: 0px;
   border-radius: 0px;
-  background-size: cover;
-  background-position: center;
+  filter: blur(0px);
+
 `;
 
 const Container = styled.div`
@@ -197,10 +214,7 @@ const Input = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  &:focus {
-    border-color: rgb(255, 215, 0);
-    outline: none;
-  }
+
   
  
 `;

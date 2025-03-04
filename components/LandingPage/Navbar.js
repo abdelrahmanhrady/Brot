@@ -39,7 +39,7 @@ const Box = styled.div`
   top: 0px;
   width: 100%;
   height: 99px;
-  background:rgb(51, 0, 0);
+  background: linear-gradient(to bottom,rgb(51, 0, 0), rgb(40, 0, 0));
   border-radius: 0px;
 `;
 
