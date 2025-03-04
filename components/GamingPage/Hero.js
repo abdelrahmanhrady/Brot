@@ -615,7 +615,7 @@ const HeroG = () => {
       dealerCard1.current = cardArray[CardSelector];
 
       CardSelector = SelectorCheck();
-      dealerImg2.current = "/flippedCard.png";
+      dealerImg2.current = "/FlippedCard.png";
       flippedCard.current = CardSelector;
       cardArrayTemp.current[CardSelector] = 0;
       dealerCard2.current = cardArray[CardSelector];
