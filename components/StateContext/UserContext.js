@@ -21,7 +21,7 @@ export const UserProvider = ({ children }) => {
             setUserData(docSnap.data());
           } else {
             setUserData({
-              uid: "",
+              uid: user.uid,
               username: "",
               email: user.email,
               money: 100,

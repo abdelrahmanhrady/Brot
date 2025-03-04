@@ -4,8 +4,10 @@ import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 import { logIn } from "@/backend/Auth";
+import { db } from "@/backend/Firebase";
 import { useRouter } from "next/router";
 import { useUser } from "@/components/StateContext/UserContext";
+import { doc, getDoc } from "firebase/firestore";
 
 
 const LogIn = () => {
@@ -40,15 +42,24 @@ const LogIn = () => {
     const usernameOrEmail = userData.usernameOrEmail;
     try {
 
-      await logIn(userData.usernameOrEmail, userData.password, setUserData);
+      const userCredential = await logIn(userData.usernameOrEmail, userData.password); 
+      const userId = userCredential.user.uid;  
+      const userDoc = await getDoc(doc(db, "users", userId));
+      setUserData({
+        uid: userId,
+        ...userDoc.data()
+      });
+
+
       router.push("/Game");
     } catch (err) {
       setError("Error logging in: " + err.message);
-      
+      alert("Error logging in: " + err.message)
       
     } finally {
       setLoading(false);
       console.log("Email after login attempt: ", userData.usernameOrEmail);
+
     }
   };
 

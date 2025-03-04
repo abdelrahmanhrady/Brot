@@ -3,6 +3,8 @@ import { db } from "@/backend/Firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 export const useUploadUserData = (userId, userData) => {
+
+    
   useEffect(() => {
     if (userId && userData) {
       const uploadData = async () => {
@@ -31,4 +33,4 @@ export const useUploadUserData = (userId, userData) => {
       uploadData();
     }
   }, [userId, userData]);
-};
+    };

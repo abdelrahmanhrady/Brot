@@ -46,6 +46,11 @@ const SignIn = ({ onSubmit }) => {
       setIsSubmitting(false);
       return;
     }
+    if (userData.username.trim().length > 20) {
+      alert("username can't be bigger than 20 characters.");
+      setIsSubmitting(false);
+      return;
+    }
   
     setIsSubmitting(true); 
     if (userData.password !== userData.confirmPassword) {

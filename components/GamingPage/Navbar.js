@@ -21,13 +21,13 @@ const NavbarG = () => {
     let result;
 
     if (num >= 1_000_000_000_000) {
-      result = (num / 1_000_000_000_000).toFixed(2) + "t";
+      result = (num / 1_000_000_000_000).toFixed(2) + "T";
     } else if (num >= 1_000_000_000) {
-      result = (num / 1_000_000_000).toFixed(2) + "b";
+      result = (num / 1_000_000_000).toFixed(2) + "B";
     } else if (num >= 1_000_000) {
-      result = (num / 1_000_000).toFixed(2) + "m";
+      result = (num / 1_000_000).toFixed(2) + "M";
     } else if (num >= 1_000) {
-      result = (num / 1_000).toFixed(2) + "k";
+      result = (num / 1_000).toFixed(2) + "K";
     } else {
       result = num.toString();
     }
@@ -67,6 +67,7 @@ const NavbarG = () => {
 
     return () => clearInterval(intervalId);
   }, [userData?.passiveLevel]);
+  
   useUploadUserData(userId, userData);
 
   if (!userData) {
@@ -105,6 +106,7 @@ const NavbarG = () => {
       return prev;
     });
   }
+ 
   function handlesignOut() {
     signOut(setUserData);
     router.push("/");
@@ -123,6 +125,11 @@ const NavbarG = () => {
         <HeadText>: {stringNumConversion(money)}</HeadText>
 
         <BoxSignUp onClick={handlesignOut}>Sign Out</BoxSignUp>
+        <Link target="_blank" href="/Leaderboard">
+
+          <BoxLeaderboard>Leaderboard</BoxLeaderboard>
+        </Link>
+
 
         <BoxPassiveCollect onClick={passiveCollect}>
           Collect Passive ‎<br></br>
@@ -256,6 +263,30 @@ const BoxSignUp = styled.div`
   position: absolute;
   cursor: pointer;
   left: 90%;
+  top: 24px;
+  font-weight: bold;
+
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 15px;
+
+  &:hover {
+    border: 2px solid rgb(0, 0, 0);
+    background: rgb(208, 177, 0);
+    transition: 0.5s;
+  }
+`;
+
+const BoxLeaderboard = styled.div`
+  font-family: "Noto Sans Georgian", sans-serif;
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  padding: 7px 28px;
+  font-size: 18px;
+  background: rgb(255, 215, 0);
+  position: absolute;
+  cursor: pointer;
+  left: 75%;
   top: 24px;
   font-weight: bold;
 

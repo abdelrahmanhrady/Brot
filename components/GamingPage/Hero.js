@@ -18,9 +18,12 @@ const HeroG = () => {
   const [moneyWon, setMoneyWon] = useState(null);
   const [moneyProfit, setMoneyProfit] = useState(null);
   const [totalPassiveCollected, setTotalPassiveCollected] = useState(null);
-  //Save info
-  useUploadUserData(userId, userData);
 
+
+
+
+  useUploadUserData(userId, userData);
+  
   console.log("userId:", userId);
   console.log("userData:", userData);
 
@@ -98,7 +101,7 @@ const HeroG = () => {
     10, 10, 10, 11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11, 2, 3, 4, 5, 6,
     7, 8, 9, 10, 10, 10, 10,
   ];
-
+  
   const cardArrayTemp = useRef(cardArray);
   const [rende, setRender] = useState(-99999999);
   const [chartVersion, setChartVersion] = useState(0);
@@ -106,6 +109,7 @@ const HeroG = () => {
   function render() {
     setRender((prevRender) => prevRender + 1);
   }
+  //Save info
   useEffect(() => {
     const fetchGif = async () => {
       try {
@@ -225,15 +229,18 @@ const HeroG = () => {
     }
   }, [userData]);
 
+
   //Loading screen
   if (!userData || (!userId && !gifUrl)) {
     return (
+      
       <LoadingScreen>
         Loading game data... (Check Wifi or Log In)
         {gifUrl && (
           <img src={gifUrl} alt="Loading GIF" width="200" height="200" />
         )}
       </LoadingScreen>
+      
     );
   }
 
@@ -244,13 +251,13 @@ const HeroG = () => {
   
     let result;
     if (num >= 1_000_000_000_000) {
-      result = (num / 1_000_000_000_000).toFixed(2) + "t";
+      result = (num / 1_000_000_000_000).toFixed(2) + "T";
     } else if (num >= 1_000_000_000) {
-      result = (num / 1_000_000_000).toFixed(2) + "b";
+      result = (num / 1_000_000_000).toFixed(2) + "B";
     } else if (num >= 1_000_000) {
-      result = (num / 1_000_000).toFixed(2) + "m";
+      result = (num / 1_000_000).toFixed(2) + "M";
     } else if (num >= 1_000) {
-      result = (num / 1_000).toFixed(2) + "k";
+      result = (num / 1_000).toFixed(2) + "K";
     } else {
       result = num.toString();
     }
@@ -643,6 +650,7 @@ const HeroG = () => {
       alert("Please enter a bet amount!");
     }
   };
+  
 
   return (
     <>
@@ -885,7 +893,7 @@ const Dealer = styled.h1`
   position: absolute;
 
   left: 43%;
-  top: 170px;
+  top: 21%;
   width: 475px;
   height: 87px;
 
@@ -941,7 +949,7 @@ const You = styled.h1`
   position: absolute;
 
   left: 44%;
-  bottom: 125px;
+  bottom: 15%;
   width: 475px;
   height: 87px;
 
