@@ -240,6 +240,22 @@ const HeroG = () => {
   //function for turning big numbers into smaller numbers with letter on the end
   function stringNumConversion(num) {
     let result;
+    if(num<0){
+      num*=-1;
+      if (num >= 1_000_000_000_000) {
+        result = (num / 1_000_000_000_000).toFixed(2) + "t";
+      } else if (num >= 1_000_000_000) {
+        result = (num / 1_000_000_000).toFixed(2) + "b";
+      } else if (num >= 1_000_000) {
+        result = (num / 1_000_000).toFixed(2) + "m";
+      } else if (num >= 1_000) {
+        result = (num / 1_000).toFixed(2) + "k";
+      } else {
+        result = num.toString();
+      }
+      result = "-"+result;
+
+    }
 
     if (num >= 1_000_000_000_000) {
       result = (num / 1_000_000_000_000).toFixed(2) + "t";
