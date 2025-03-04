@@ -57,6 +57,9 @@ const LogIn = () => {
 
       router.push("/Game");
     } catch (err) {
+      if (err.message.includes('firebase')) {
+        alert("Auth Failed")
+      }
       setError("Error logging in: " + err.message);
       
     } finally {
