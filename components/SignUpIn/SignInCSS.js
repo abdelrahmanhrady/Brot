@@ -1,5 +1,5 @@
 // SignInCSS.js
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,7 +14,7 @@ import { db } from "@/backend/Firebase";
 
 const SignIn = ({ onSubmit }) => {
   const router = useRouter();
-  const { setUserData } = useUser(); 
+  const { userData: contextUserData, setUserData } = useUser(); 
   const [isSubmitting, setIsSubmitting] = useState(false); 
 
   
@@ -26,6 +26,17 @@ const SignIn = ({ onSubmit }) => {
     agreeToTerms: false,
     errorMessage: "Error"
   });
+  useEffect(() => {
+       if (contextUserData) {
+         router.push("/Game");
+       }
+     }, [contextUserData, router]);
+
+useEffect(() => {
+    if (setUserData?.uid) {
+      router.push("/Game")
+    }
+  }, [setUserData]);
 
 
   const handleChange = (e) => {

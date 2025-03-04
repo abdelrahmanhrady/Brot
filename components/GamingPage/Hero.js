@@ -473,6 +473,7 @@ const HeroG = () => {
       dealerCard3.current +
       dealerCard4.current +
       dealerCard5.current;
+      setRender(prevData=>prevData+1)
   }
 
   //the ancient way of setting a function (???), When user clicks "stand"
@@ -481,7 +482,7 @@ const HeroG = () => {
       alert("You must bet first");
       return;
     }
-
+    dealerCard2.current = cardArray[flippedCard.current];
     //to sum all this up, it checks if dealer is less than 16, and adds a card, then repeats process 3 times
     findSums();
     CheckForAceLoopYou();
@@ -623,11 +624,7 @@ const HeroG = () => {
       cardArrayTemp.current[CardSelector] = 0;
       dealerCard1.current = cardArray[CardSelector];
 
-      CardSelector = SelectorCheck();
-      dealerImg2.current = "/FlippedCard.png";
-      flippedCard.current = CardSelector;
-      cardArrayTemp.current[CardSelector] = 0;
-      dealerCard2.current = cardArray[CardSelector];
+      
 
       CardSelector = SelectorCheck();
       yourImg1.current = cardImg[CardSelector];
@@ -639,6 +636,7 @@ const HeroG = () => {
       cardArrayTemp.current[CardSelector] = 0;
       yourCard2.current = cardArray[CardSelector];
 
+
       dealerImg3.current = empty;
       dealerImg4.current = empty;
       dealerImg5.current = empty;
@@ -646,6 +644,15 @@ const HeroG = () => {
       yourImg3.current = empty;
       yourImg4.current = empty;
       yourImg5.current = empty;
+      
+      findSums();
+      if(yourSum.current>21){
+        CheckForAceLoopYou();
+      }
+      CardSelector = SelectorCheck();
+      dealerImg2.current = "/FlippedCard.png";
+      flippedCard.current = CardSelector;
+      cardArrayTemp.current[CardSelector] = 0;
     } else {
       alert("Please enter a bet amount!");
     }
@@ -673,7 +680,7 @@ const HeroG = () => {
         <BetButton onClick={handleBetClick}>Place Bet</BetButton>
       </BetContainer>
 
-      <Dealer>Dealer Cards:</Dealer>
+      <Dealer>Dealer Cards: {dealerSum.current}</Dealer>
       <DealerCards>
         <DealerCard>
           <Image src={dealerImg1.current} width={78} height={111} />
@@ -692,7 +699,7 @@ const HeroG = () => {
         </DealerCard>
       </DealerCards>
 
-      <You>Your Cards:</You>
+      <You>Your Cards: {yourSum.current}</You>
       <YourCards>
         <YourCard>
           <Image src={yourImg1.current} width={78} height={111} />
