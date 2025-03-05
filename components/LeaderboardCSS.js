@@ -48,22 +48,24 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, [userData]);
   function stringNumConversion(num) {
+    let isNegative = num < 0;
+    num = Math.abs(num);
+  
     let result;
-
     if (num >= 1_000_000_000_000) {
-      result = (num / 1_000_000_000_000).toFixed(2) + "T";
+      result = Math.floor(num / 1_000_000_000_000 * 100) / 100 + "T";
     } else if (num >= 1_000_000_000) {
-      result = (num / 1_000_000_000).toFixed(2) + "B";
+      result = Math.floor(num / 1_000_000_000 * 100) / 100 + "B";
     } else if (num >= 1_000_000) {
-      result = (num / 1_000_000).toFixed(2) + "M";
+      result = Math.floor(num / 1_000_000 * 100) / 100 + "M";
     } else if (num >= 1_000) {
-      result = (num / 1_000).toFixed(2) + "K";
+      result = Math.floor(num / 1_000 * 100) / 100 + "K";
     } else {
       result = num.toString();
-    }
-
-    return result;
-  }
+    } 
+  
+    return isNegative ? "-" + result : result;
+}
 
   return (
     <>
