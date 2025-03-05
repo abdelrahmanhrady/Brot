@@ -40,7 +40,11 @@ const NavbarG = () => {
       setMoney(userData.money);
       const rate = 2 ** userData.passiveLevel;
       setPassiveRate(rate);
-      setPassiveCost(rate * userData.passiveLevel*100);
+      if(userData.passiveLevel<11){
+        setPassiveCost(rate ** 2);
+      }else{
+        setPassiveCost(rate * userData.passiveLevel*100);
+      }
       setPassiveIncome(userData.passiveIncome || 0);
       setTotalPassiveCollected(userData.TotalPassiveCollected);
     }
@@ -91,7 +95,12 @@ const NavbarG = () => {
     setUserData((prev) => {
       if (!prev) return prev;
       const currentLevel = prev.passiveLevel;
-      const upgradeCost = (2 ** currentLevel) * userData.passiveLevel*100;
+      let upgradeCost;
+      if(userData.passiveLevel<11){
+        upgradeCost = (2 ** currentLevel) **2;
+      }else{
+        upgradeCost = (2 ** currentLevel) * userData.passiveLevel*100;
+      }
       if (prev.money >= upgradeCost) {
         return {
           ...prev,
