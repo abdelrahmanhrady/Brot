@@ -29,9 +29,7 @@ const HeroG = () => {
 
   const router = useRouter();
   //Random Api
-  const [gifUrl, setGifUrl] = useState(null);
-  //Not an API key
-  const api = "HwKNZBNfseafAEYwNi496qLbCjDwYCZ6";
+
 
   //I love AI
   const cardImg = [
@@ -110,21 +108,7 @@ const HeroG = () => {
     setRender((prevRender) => prevRender + 1);
   }
   //Save info
-  useEffect(() => {
-    const fetchGif = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.giphy.com/v1/gifs/random?api_key=${api}&tag=loading&rating=g`
-        );
-        const gif = response.data.data.images.original.url;
-        setGifUrl(gif);
-      } catch (error) {
-        console.error("Error fetching GIF from Giphy:", error);
-      }
-    };
-
-    fetchGif();
-  }, []);
+ 
 
   //Game variables
   const [midMsg, setMidMsg] = useState("");

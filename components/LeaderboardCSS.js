@@ -145,7 +145,6 @@ const LeaderboardList = styled.ul`
 const LeaderboardItem = styled.li`
   display: flex;
   justify-content: space-between;
-    {/*The heck is this*/}
   background: ${(props) => (props.isCurrentUser ? "rgb(171, 142, 0)" : "#2c2c2c")};
   padding: 10px;
   border-radius: 5px;
