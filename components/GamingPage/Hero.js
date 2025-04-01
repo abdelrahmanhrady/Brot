@@ -28,7 +28,7 @@ const HeroG = () => {
   console.log("userData:", userData);
 
   const router = useRouter();
-  //Random Api
+ 
 
 
   //I love AI
@@ -215,14 +215,11 @@ const HeroG = () => {
 
 
   //Loading screen
-  if (!userData || (!userId && !gifUrl)) {
+  if (!userData || (!userId)) {
     return (
       
       <LoadingScreen>
         Loading game data... (Check Wifi or Log In)
-        {gifUrl && (
-          <img src={gifUrl} alt="Loading GIF" width="200" height="200" />
-        )}
       </LoadingScreen>
       
     );
