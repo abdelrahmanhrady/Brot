@@ -6,18 +6,18 @@ import { useEffect, useState } from "react";
 import { useUser } from "./StateContext/UserContext";
 import Image from "next/image";
 
-
 const Leaderboard = () => {
   const { userData } = useUser();
   const [players, setPlayers] = useState([]);
   const [currentUserRank, setCurrentUserRank] = useState(null);
-  
+  const [dealerProfit, setDealerProfit] = useState(0);
 
-  //Mostly AI generated
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
         const leaderboardRef = collection(db, "users");
+
+        // 🔸 Fetch top 10 players for leaderboard display
         const q = query(leaderboardRef, orderBy("money", "desc"), limit(10));
         const snapshot = await getDocs(q);
 
@@ -29,15 +29,25 @@ const Leaderboard = () => {
 
         setPlayers(playersData);
 
-        // Find current user's rank globally if not in top 10
-        if (userData) {
-          // Query all users to determine global rank
-          const allUsersQuery = query(leaderboardRef, orderBy("money", "desc"));
-          const allUsersSnapshot = await getDocs(allUsersQuery);
-          const allUsers = allUsersSnapshot.docs.map((doc) => doc.data());
+        // 🔸 Fetch all users for rank + dealer earnings
+        const allUsersSnapshot = await getDocs(leaderboardRef);
+        const allUsers = allUsersSnapshot.docs.map((doc) => doc.data());
 
-          const globalRank =
-            allUsers.findIndex((user) => user.uid === userData.uid) + 1;
+        // ✅ Calculate dealer profit
+        let totalMoneyWon = 0;
+        let totalMoneyLost = 0;
+
+        allUsers.forEach((user) => {
+          totalMoneyWon += user.MoneyWon || 0;
+          totalMoneyLost += user.MoneyLost || 0;
+        });
+
+        setDealerProfit(totalMoneyLost - totalMoneyWon);
+
+        // ✅ Calculate current user rank
+        if (userData) {
+          const sortedUsers = [...allUsers].sort((a, b) => b.money - a.money);
+          const globalRank = sortedUsers.findIndex((user) => user.uid === userData.uid) + 1;
           setCurrentUserRank(globalRank);
         }
       } catch (error) {
@@ -47,57 +57,67 @@ const Leaderboard = () => {
 
     fetchLeaderboard();
   }, [userData]);
+
   function stringNumConversion(num) {
     let isNegative = num < 0;
     num = Math.abs(num);
-  
+
     let result;
     if (num >= 1_000_000_000_000) {
-      result = Math.floor(num / 1_000_000_000_000 * 100) / 100 + "T";
+      result = Math.floor((num / 1_000_000_000_000) * 100) / 100 + "T";
     } else if (num >= 1_000_000_000) {
-      result = Math.floor(num / 1_000_000_000 * 100) / 100 + "B";
+      result = Math.floor((num / 1_000_000_000) * 100) / 100 + "B";
     } else if (num >= 1_000_000) {
-      result = Math.floor(num / 1_000_000 * 100) / 100 + "M";
+      result = Math.floor((num / 1_000_000) * 100) / 100 + "M";
     } else if (num >= 1_000) {
-      result = Math.floor(num / 1_000 * 100) / 100 + "K";
+      result = Math.floor((num / 1_000) * 100) / 100 + "K";
     } else {
       result = num.toString();
-    } 
-  
+    }
+
     return isNegative ? "-" + result : result;
-}
+  }
 
   return (
     <>
-    <LeaderboardContainer>
-      <HeaderT>🏆 Leaderboard</HeaderT>
-      <LeaderboardList>
-        {players.map((player) => (
-          <LeaderboardItem
-            key={player.id}
-            isCurrentUser={userData?.uid === player.uid}
-          >
-            <Rank>{player.rank}.</Rank>
-            <Username>{player.username}</Username>
-            <Money>💰 {stringNumConversion(player.money)}$</Money>
-          </LeaderboardItem>
-        ))}
-      </LeaderboardList>
-      {userData && currentUserRank && (
-        <UserRank>Your Rank: #{currentUserRank}</UserRank>
-      )}
-    </LeaderboardContainer>
+      <LeaderboardContainer>
+        <HeaderT>🏆 Leaderboard</HeaderT>
+        <LeaderboardList>
+          {players.map((player) => (
+            <LeaderboardItem
+              key={player.id}
+              isCurrentUser={userData?.uid === player.uid}
+            >
+              <Rank>{player.rank}.</Rank>
+              <Username>{player.username}</Username>
+              <Money>💰 {stringNumConversion(player.money)}$</Money>
+            </LeaderboardItem>
+          ))}
+        </LeaderboardList>
+        {userData && currentUserRank && (
+          <UserRank>Your Rank: #{currentUserRank}</UserRank>
+        )}
+        <DealerProfit>
+          💼 Dealer Earnings: {stringNumConversion(dealerProfit)}$
+        </DealerProfit>
+      </LeaderboardContainer>
 
-    <ImageWrapperBlr>
-            <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
-          </ImageWrapperBlr>
-          <ImageWrapper>
-            <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
-          </ImageWrapper>
+      <ImageWrapperBlr>
+        <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
+      </ImageWrapperBlr>
+      <ImageWrapper>
+        <Image src="/PokerBG.jpg" layout="fill" objectFit="cover" />
+      </ImageWrapper>
     </>
   );
 };
 
+const DealerProfit = styled.p`
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: red;
+`;
 
 const ImageWrapper = styled.div`
   z-index: -1;
@@ -119,6 +139,7 @@ const ImageWrapperBlr = styled.div`
   top: 0px;
   border-radius: 0px;
 `;
+
 const LeaderboardContainer = styled.div`
   padding: 20px;
   text-align: center;
@@ -141,11 +162,12 @@ const LeaderboardList = styled.ul`
   list-style: none;
   padding: 0;
 `;
-//AI GENERATED
+
 const LeaderboardItem = styled.li`
   display: flex;
   justify-content: space-between;
-  background: ${(props) => (props.isCurrentUser ? "rgb(171, 142, 0)" : "#2c2c2c")};
+  background: ${(props) =>
+    props.isCurrentUser ? "rgb(171, 142, 0)" : "#2c2c2c"};
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 8px;
@@ -165,7 +187,7 @@ const Username = styled.span`
 
 const Money = styled.span`
   font-weight: bold;
-  color:rgb(121, 255, 125);
+  color: rgb(121, 255, 125);
 `;
 
 const UserRank = styled.p`
